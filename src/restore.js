@@ -2,12 +2,12 @@ import context from './context.js';
 import load from './load.js';
 
 export function restore() {
-    return load(context.getInjections())
+    return load(context.getStubs())
         .then(originalModules => {
-            Object.keys(context.getInjections()).forEach(moduleURL => {
-                var meta = context.getInjections()[moduleURL];
+            Object.keys(context.getStubs()).forEach(url => {
+                var meta = context.getStubs()[url];
                 if (meta.isDefault) {
-                    originalModules[moduleURL].restore();
+                    originalModules[url].restore();
                 }
             });
         });

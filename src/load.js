@@ -1,8 +1,8 @@
-export default function load(injections) {
+export default function load(modules) {
     return Promise
-        .all(Object.keys(injections).map(moduleURL => { return System.import(moduleURL); }))
+        .all(Object.keys(modules).map(url => { return System.import(url); }))
         .then(originalModules => {
-            return Object.keys(injections).reduce((prevValue, value, index) => {
+            return Object.keys(modules).reduce((prevValue, value, index) => {
                 prevValue[value] = originalModules[index];
                 return prevValue;
             }, {});

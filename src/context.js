@@ -1,13 +1,13 @@
 function Context() {
-    this._injections = {};
+    this._stubs = {};
 }
 
-Context.prototype.addInjection = function (moduleURL, module, isDefault = true) {
-    if (!Array.isArray(moduleURL)) {
-        this._injections[moduleURL] = { module, isDefault };
+Context.prototype.addStub = function (url, module, isDefault = true) {
+    if (!Array.isArray(url)) {
+        this._stubs[url] = { module, isDefault };
     } else {
-        moduleURL.forEach(item => {
-            this._injections[item.url] = {
+        url.forEach(item => {
+            this._stubs[item.url] = {
                 module: item.module,
                 isDefault: typeof item.isDefault === 'undefined' ? true : item.isDefault
             };
@@ -15,12 +15,12 @@ Context.prototype.addInjection = function (moduleURL, module, isDefault = true) 
     }
 };
 
-Context.prototype.getInjections = function () {
-    return this._injections;
+Context.prototype.getStubs = function () {
+    return this._stubs;
 };
 
 Context.prototype.reset = function () {
-    this._injections = {};
+    this._stubs = {};
 };
 
 export default new Context();
