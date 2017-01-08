@@ -256,7 +256,10 @@ describe('Factory', function () {
 ```
 
 ## Usage
-//TODO
+
+- add `import { rewire, restore } from 'systemjs-rewire';` to top level of your test file
+- `rewire(...)` pass stubs for modules you want to override
+- `restore()` restore default modules
 
 ## API
 //TODO
