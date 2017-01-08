@@ -1,100 +1,144 @@
 # systemjs-rewire
-SystemJS wrapper based on babel plugin [rewire-exports](https://github.com/asapach/babel-plugin-rewire-exports) for stubbing ES modules. Unlike standalone [rewire-exports](https://github.com/asapach/babel-plugin-rewire-exports) plugin it provides compact high-level API for overriding module dependencies while staying fully compatible.
+SystemJS wrapper is based on babel plugin [rewire-exports](https://github.com/asapach/babel-plugin-rewire-exports) for stubbing ES modules. Unlike standalone [rewire-exports](https://github.com/asapach/babel-plugin-rewire-exports) plugin it provides compact high-level API for overriding module dependencies while staying fully compatible.
 
 ## Example
 
-### Default export
+### Default exports
 
+#### Employees:
 ```javascript
-//------ logger.js ------
-export default function (message) {
-  console.log(message);
+//------ fullTime.js ------
+export default function FullTime(type) {
+    this.type = type;
+    this.hourly = "$12";
+};
+
+//------ partTime.js ------
+export default function PartTime(type) {
+    this.type = type;
+    this.hourly = "$11";
+};
+
+//------ temporary.js ------
+export default function Temporary(type) {
+    this.type = type;
+    this.hourly = "$10";
+};
+
+//------ contractor.js ------
+export default function Contractor(type) {
+    this.type = type;
+    this.hourly = "$15";
+};
+```
+
+#### Factory
+```javascript
+//------ factory.js ------
+export default function Factory() {
+    this.createEmployee = function (type) {
+        var employee;
+ 
+        if (type === "fulltime") {
+            employee = new FullTime(type);
+        } else if (type === "parttime") {
+            employee = new PartTime(type);
+        } else if (type === "temporary") {
+            employee = new Temporary(type);
+        } else if (type === "contractor") {
+            employee = new Contractor(type);
+        }
+ 
+        employee.say = function () {
+            console.log(`${this.type}: rate is ${this.hourly} per hour.`);
+        }
+ 
+        return employee;
+    }
 }
+```
 
-//------ fetch.js ------
-export default function (url){
-}
-
-//------ handle.js ------
-export default function (e) {
-}
-
-//------ provider.js ------
-import log from './logger.js';
-import handle from './handle.js';
-import fetch from './fetch.js';
-
-export function getItems() {
-  try {
-    log('Getting items...');
-    fetch('/items');
-    log('Successful');
-  } catch (e) {
-    handle(e);
-  }
-}
-
+#### Tests
+```javascript
 //------ test.js ------
 import { rewire, restore } from 'systemjs-rewire';
-import {getItems} from './provider.js';
+import Factory from './factory.js';
 
-describe('provider', function () {
-  beforeEach(function (done) {
-    rewire('logger.js', this.spyLogger = jasmine.createSpy('logger'))
-    .rewire('handle.js', this.spyHandler = jasmine.createSpy('handle'))
-    .rewire('fetch.js', this.spyFetch = jasmine.createSpy('fetch'))
-    .then(done);
-  });
-  afterAll(function(done){
-      restore.then(done);
-  });
+describe('Factory', function () {
 
-  it('should call fetch', function () {
-    getItems();
+    beforeEach(function (done) {
+        // stub employees and tracks calls and arguments
+        rewire('fullTime.js', this.fullTime = jasmine.createSpy('fullTime'))
+        .rewire('partTime.js', this.partTime = jasmine.createSpy('partTime'))
+        .rewire('temporary.js', this.temporary = jasmine.createSpy('temporary'))
+        .rewire('contractor.js', this.contractor = jasmine.createSpy('contractor'))
+        .then(() => {
+            //create a factory instance with subbed employees
+            this.factory = new Factory();
+            done();
+        });
+    });
 
-    expect(this.spyLogger).toHaveBeenCalledWith('Getting items...');
-    expect(this.spyLogger).toHaveBeenCalledWith('Successful');
+    afterAll(function (done) {
+        restore.then(done);
+    });
 
-    expect(this.spyHandler).not.toHaveBeenCalled();
+    it('should create FullTime employee properly', function () {
+        this.factory.createEmployee("fulltime");
 
-    expect(this.spyFetch).toHaveBeenCalledWith('/items');
-  });
+        expect(this.fullTime).toHaveBeenCalledWith('fulltime');
+    });
+
+    it('should create PartTime employee properly', function () {
+        this.factory.createEmployee("partTime");
+
+        expect(this.fullTime).toHaveBeenCalledWith('partTime');
+    });
+
+    it('should create Temporary employee properly', function () {
+        this.factory.createEmployee("temporary");
+
+        expect(this.fullTime).toHaveBeenCalledWith('temporary');
+    });
+
+    it('should create Contractor employee properly', function () {
+        this.factory.createEmployee("contractor");
+
+        expect(this.fullTime).toHaveBeenCalledWith('contractor');
+    });
 });
 ```
-Compare the same test with standalone `rewire-exports`:
+
+Compare the same test with standalone `rewire-exports` plugin:
 
 ```javascript
 //------ test.js ------
-import {rewireLog, restoreLog} from './log.js';
-import {rewireHandle, restoreHandle} from './handle.js';
-import {rewireFetch, restoreFetch} from './fetch.js';
-import {getItems} from './provider.js';
+import {rewireFullTime, restoreFullTime} from './fullTime.js';
+import {rewirePartTime, restorePartTime} from './partTime.js';
+import {rewireTemporary, restoreTemporary} from './temporary.js';
+import {rewireContractor, restoreContractor} from './contractor.js';
+import Factory from './factory.js';
 
-describe('provider', function () {
-  beforeEach(function () {
-    rewireLog(this.spyLogger = jasmine.createSpy('logger'));
-    rewireHandle(this.spyHandler = jasmine.createSpy('handle'));
-    rewireFetch(this.spyFetch = jasmine.createSpy('fetch'));
-  });
-  afterAll(function(){
-      restoreLog();
-      restoreHandle();
-      restoreFetch();
-  });
+describe('Factory', function () {
+    beforeEach(function () {
+        // stub employees and tracks calls and arguments
+        rewireFullTime(this.fullTime = jasmine.createSpy('fullTime'));
+        rewirePartTime(this.partTime = jasmine.createSpy('partTime'));
+        rewireTemporary(this.temporary = jasmine.createSpy('temporary'));
+        rewireContractor(this.contractor = jasmine.createSpy('contractor'));
 
-  it('should call fetch', function () {
-    getItems();
-
-    expect(this.spyLogger).toHaveBeenCalledWith('Getting items...');
-    expect(this.spyLogger).toHaveBeenCalledWith('Successful');
-
-    expect(this.spyHandler).not.toHaveBeenCalled();
-
-    expect(this.spyFetch).toHaveBeenCalledWith('/items');
-  });
+        //create a factory instance with subbed employees
+        this.factory = new Factory();
+    });
+    afterAll(function () {
+        restoreFullTime();
+        restorePartTime();
+        restoreTemporary();
+        restoreContractor();
+    });
+    ...
 });
 ```
-
 
 ### Named export
 
