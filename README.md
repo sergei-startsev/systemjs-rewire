@@ -1,7 +1,16 @@
 # systemjs-rewire
 SystemJS wrapper is based on [rewire-exports](https://github.com/asapach/babel-plugin-rewire-exports) babel plugin and designed for stubbing ES modules. Unlike standalone [rewire-exports](https://github.com/asapach/babel-plugin-rewire-exports) plugin it provides compact high-level API for overriding module dependencies while staying fully compatible.
 
-## Example
+# TOC
+- [Examples](#examples)
+    - [Default Exports](#default-exports)
+    - [Named Exports](#named-exports)
+- [Usage](#usage)
+- [API](#api)
+- [Features](#features)
+- [Installation](#installation)
+
+## Examples
 
 ### Default Exports
 
@@ -208,7 +217,7 @@ describe('Factory', function () {
     afterAll(function (done) {
         restore.then(done);
     });
-    
+
     //see the full implementation in Default Exports examples
     ...
 });
@@ -228,5 +237,3 @@ See [rewire-exports](https://github.com/asapach/babel-plugin-rewire-exports).
 
 ## Installation
 //TODO
-
-
