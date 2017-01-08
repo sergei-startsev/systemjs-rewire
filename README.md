@@ -3,7 +3,7 @@ SystemJS wrapper is based on [rewire-exports](https://github.com/asapach/babel-p
 
 ## Example
 
-### Default exports
+### Default Exports
 
 #### Employees:
 ```javascript
@@ -145,7 +145,7 @@ describe('Factory', function () {
 });
 ```
 
-### Named exports
+### Named Exports
 
 Let's consider that employees are named exports:
 
@@ -154,23 +154,20 @@ Let's consider that employees are named exports:
 //------ employees.js ------
 
 export function FullTime(type) {
-    this.type = type;
-    this.hourly = "$12";
+    //see the full implementation in Default Exports examples
+    ...
 };
 
 export function PartTime(type) {
-    this.type = type;
-    this.hourly = "$11";
+    ...
 };
 
 export function Temporary(type) {
-    this.type = type;
-    this.hourly = "$10";
+    ...
 };
 
 export function Contractor(type) {
-    this.type = type;
-    this.hourly = "$15";
+    ...
 };
 ```
 
@@ -180,25 +177,8 @@ export function Contractor(type) {
 import {FullTime, PartTime, Temporary, Contractor} from './employees.js';
 
 export default function Factory() {
-    this.createEmployee = function (type) {
-        var employee;
- 
-        if (type === "fulltime") {
-            employee = new FullTime(type);
-        } else if (type === "parttime") {
-            employee = new PartTime(type);
-        } else if (type === "temporary") {
-            employee = new Temporary(type);
-        } else if (type === "contractor") {
-            employee = new Contractor(type);
-        }
- 
-        employee.say = function () {
-            console.log(`${this.type}: rate is ${this.hourly} per hour.`);
-        }
- 
-        return employee;
-    }
+    //see the full implementation in Default Exports examples
+    ...
 }
 ```
 
@@ -228,30 +208,9 @@ describe('Factory', function () {
     afterAll(function (done) {
         restore.then(done);
     });
-
-    it('should create FullTime employee properly', function () {
-        this.factory.createEmployee("fulltime");
-
-        expect(this.fullTime).toHaveBeenCalledWith('fulltime');
-    });
-
-    it('should create PartTime employee properly', function () {
-        this.factory.createEmployee("partTime");
-
-        expect(this.fullTime).toHaveBeenCalledWith('partTime');
-    });
-
-    it('should create Temporary employee properly', function () {
-        this.factory.createEmployee("temporary");
-
-        expect(this.fullTime).toHaveBeenCalledWith('temporary');
-    });
-
-    it('should create Contractor employee properly', function () {
-        this.factory.createEmployee("contractor");
-
-        expect(this.fullTime).toHaveBeenCalledWith('contractor');
-    });
+    
+    //see the full implementation in Default Exports examples
+    ...
 });
 ```
 
